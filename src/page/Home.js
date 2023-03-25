@@ -3,6 +3,8 @@ import {useNavigate} from "react-router-dom";
 import {Button} from "react-bootstrap";
 import '../style/grid.css';
 import '../style/footer.css';
+import Footer from "../component/Footer";
+import Authors from "../component/Authors";
 
 const Home = () => {
     const navigate = useNavigate();
@@ -30,13 +32,7 @@ const Home = () => {
 
     return (
         <div>
-            <div className={'text-light my-3 mx-3'}>
-                <p>
-                    Команда 25:<br/>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Мусаев Бекзат<br/>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Сунчугашев Аймир<br/>
-                </p>
-            </div>
+            <Authors/>
             <div className={'container component-center'}>
                 <h1 className={'text-light mb-5'} style={centerTitle}>Задачи</h1>
                 <div className={'d-grid gap-2'}>
@@ -54,9 +50,7 @@ const Home = () => {
                             style={buttonHorizontalMargin}>Нейронная сеть</Button>
                 </div>
             </div>
-            <div className={'footer'}>
-                <div className={'text-light'}>HITS 2023</div>
-            </div>
+            <Footer/>
         </div>
     );
 };
