@@ -1,7 +1,7 @@
 import React from "react";
 import {Route, Routes} from "react-router-dom";
 import Home from "./page/Home";
-import AntAlgorithm from "./page/AntAlgorithm";
+import AntAlgorithmPage from "./page/AntAlgorithm/AntAlgorithmPage";
 import AStarAlgorithm from "./page/AStarAlgorithm";
 import ClusterAnalysisAlgorithm from "./page/ClusterAnalysisAlgorithm";
 import DecisionTreeAlgorithm from "./page/DecisionTreeAlgorithm";
@@ -15,7 +15,7 @@ function App() {
         <div>
             <Routes>
                 <Route path={'/'} element={<Home/>}/>
-                <Route path={'/ant-algorithm'} element={<AntAlgorithm/>}/>
+                <Route path={'/ant-algorithm'} element={<AntAlgorithmPage/>}/>
                 <Route path={'/a-star-algorithm'} element={<AStarAlgorithm/>}/>
                 <Route path={'/cluster-analysis-algorithm'} element={<ClusterAnalysisAlgorithm/>}/>
                 <Route path={'/decision-tree-algorithm'} element={<DecisionTreeAlgorithm/>}/>

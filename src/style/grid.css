@@ -6,3 +6,18 @@
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
 }
+
+.buttons-panel{
+    margin-left: 15%;
+    margin-right: 71%;
+    margin-top: 8%;
+}
+
+.component-right {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 57%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
