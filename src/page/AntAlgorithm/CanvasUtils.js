@@ -1,8 +1,21 @@
-export const updateCanvas = (minPathIndex) => {
-    document.getElementById('clear-button').click();
+import {CANVAS_HEIGHT, CANVAS_WIDTH} from "./AntAlgorithmPage";
 
+export const updateCanvas = (path, ctx, points) => {
+    clearCanvas(ctx);
+    for (let i = 0; i < path.length; i++) {
+        ctx.strokeStyle = '#4260f5';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(points[path[i].from].x, points[path[i].from].y);
+        ctx.lineTo(points[path[i].to].x, points[path[i].to].y);
+        ctx.stroke();
+        ctx.closePath();
+    }
+    for (let i = 0; i < points.length; i++) {
+        points[i].draw();
+    }
 }
 
-const drawLines = () => {
-
+export const clearCanvas = (ctx) => {
+    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 }

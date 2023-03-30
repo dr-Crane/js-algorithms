@@ -1,4 +1,3 @@
-import {points} from "./AntAlgorithmPage";
 import {updateCanvas} from "./CanvasUtils";
 
 const ALPHA = 1;
@@ -7,37 +6,66 @@ const EVAPORATION_RATE = 0.5;
 const Q = 100;
 const ANTS_AMOUNT = 100;
 const PHEROMONES_DEFAULT_VALUE = 1;
+const ITERATIONS_COUNT = 100;
 
 let distanceMatrix;
 let pheromonesMatrix;
 let routeMatrix;
-let routeLength = new Array(ANTS_AMOUNT);
 
-export const antAlgorithm = () => {
-    if (points.length < 2) {
-        alert("Вершин должно быть больше двух");
-        return;
-    }
-    initDistanceMatrix();
-    initPheromonesMatrix();
+export const antAlgorithm = async (ctx, points) => {
     let minPathLength = 0;
     let minPathIndex = 0;
-    for (let i = 0; i < 500; i++) {
-        initRouteMatrix();
-        runAnt(i);
-        updatePheromones();
-        minPathIndex = getIndexOfMinimumValue();
+    let path = null;
+    initDistanceMatrix(points);
+    initPheromonesMatrix(points);
+    for (let i = 0; i < ITERATIONS_COUNT; i++) {
+        let routeLength = new Array(ANTS_AMOUNT);
+        initRouteMatrix(points);
+        runAllAnts(routeLength, points);
+        updatePheromones(routeLength);
+        minPathIndex = getIndexOfMinimumValue(routeLength);
         if (minPathLength === 0 || routeLength[minPathIndex] < minPathLength) {
             minPathLength = routeLength[minPathIndex];
-            updateCanvas(minPathIndex);
+            path = getPath(routeMatrix[minPathIndex]);
+            await (100);
         }
     }
-    updateCanvas(minPathIndex);
+    updateCanvas(path, ctx, points);
 }
 
-const getIndexOfMinimumValue = () => {
+const runAllAnts = (routeLength, points) => {
+    for (let j = 0; j < ANTS_AMOUNT; j++) {
+        let currentPoint = 0
+        for (let k = 0; k < points.length; k++) {
+            routeMatrix[j][k] = currentPoint;
+            currentPoint = getNextPoint(j, currentPoint, points);
+        }
+        routeLength[j] = getRouteLength(j);
+    }
+}
+
+const getPath = (route) => {
+    let path = [];
+    let currentPoint = 0;
+    let nextPoint = 0;
+    for (let i = 1; i < route.length; i++) {
+        nextPoint = route[i];
+        path.push({
+            from: currentPoint,
+            to: nextPoint
+        });
+        currentPoint = nextPoint;
+    }
+    path.push({
+        from: currentPoint,
+        to: 0
+    });
+    return path;
+}
+
+const getIndexOfMinimumValue = (routeLength) => {
     let minIndex = 0;
-    for (let i = 1; i < routeLength.length; i++) {
+    for (let i = 0; i < routeLength.length; i++) {
         if (routeLength[minIndex] > routeLength[i]) {
             minIndex = i;
         }
@@ -45,13 +73,22 @@ const getIndexOfMinimumValue = () => {
     return minIndex;
 }
 
-const updatePheromones = () => {
-    flyAwayPheromones();
-    sprayNewPheromones()
+const updatePheromones = (routeLength) => {
+    for (let i = 0; i < pheromonesMatrix.length; i++) {
+        for (let j = 0; j < pheromonesMatrix[i].length; j++) {
+            if (i !== j) {
+                pheromonesMatrix[i][j] = pheromonesMatrix[i][j] * EVAPORATION_RATE;
+            }
+        }
+    }
+    sprayNewPheromones(routeLength)
 }
 
-const sprayNewPheromones = () => {
-    let delta = calculateDelta();
+const sprayNewPheromones = (routeLength) => {
+    let delta = new Array(ANTS_AMOUNT);
+    for (let i = 0; i < ANTS_AMOUNT; i++) {
+        delta[i] = Q / routeLength[i];
+    }
     for (let i = 0; i < ANTS_AMOUNT; i++) {
         let currentPoint = 0;
         let nextPoint = 0;
@@ -62,33 +99,6 @@ const sprayNewPheromones = () => {
         }
         pheromonesMatrix[currentPoint][0] = pheromonesMatrix[currentPoint][0] + delta[i];
     }
-}
-
-const calculateDelta = () => {
-    let delta = new Array(ANTS_AMOUNT);
-    for (let i = 0; i < ANTS_AMOUNT; i++) {
-        delta[i] = routeLength[i] !== undefined ? Q / routeLength[i] : 0;
-    }
-    return delta;
-}
-
-const flyAwayPheromones = () => {
-    for (let i = 0; i < pheromonesMatrix.length; i++) {
-        for (let j = 0; j < pheromonesMatrix[i].length; j++) {
-            if (i !== j) {
-                pheromonesMatrix[i][j] = pheromonesMatrix[i][j] * EVAPORATION_RATE;
-            }
-        }
-    }
-}
-
-const runAnt = (antIndex) => {
-    let currentPoint = 0;
-    for (let i = 0; i < points.length; i++) {
-        routeMatrix[antIndex][i] = currentPoint;
-        currentPoint = getNextPoint(antIndex, currentPoint);
-    }
-    routeLength[antIndex] = getRouteLength(antIndex);
 }
 
 const getRouteLength = (antIndex) => {
@@ -104,15 +114,17 @@ const getRouteLength = (antIndex) => {
     return length;
 }
 
-const getNextPoint = (antIndex, currentPoint) => {
-    let possiblePoints = getPossiblePoints(antIndex, currentPoint);
-    if (possiblePoints.length === 0) {
-        return 0;
+const getPossiblePoints = (points, antIndex) => {
+    let possiblePoints = [];
+    for (let i = 1; i < points.length; i++) {
+        if (!routeMatrix[antIndex].includes(i)) {
+            possiblePoints.push(i);
+        }
     }
-    return getAntsWish(currentPoint, possiblePoints)
+    return possiblePoints;
 }
 
-const getAntsWish = (currentPoint, possiblePoints) => {
+function getAntsChoiceProbabilities(possiblePoints, currentPoint) {
     let numerator = new Array(possiblePoints.length);
     let denominator = 0;
     for (let i = 0; i < possiblePoints.length; i++) {
@@ -126,6 +138,15 @@ const getAntsWish = (currentPoint, possiblePoints) => {
     for (let i = 0; i < possiblePoints.length; i++) {
         probability[i] = numerator[i] / denominator;
     }
+    return probability;
+}
+
+const getNextPoint = (antIndex, currentPoint, points) => {
+    let possiblePoints = getPossiblePoints(points, antIndex);
+    if (possiblePoints.length === 0) {
+        return 0;
+    }
+    let probability = getAntsChoiceProbabilities(possiblePoints, currentPoint);
     let currentRange = probability[0];
     let random = Math.random();
     for (let i = 1; i < possiblePoints.length; i++) {
@@ -137,24 +158,14 @@ const getAntsWish = (currentPoint, possiblePoints) => {
     return possiblePoints[possiblePoints.length - 1];
 }
 
-const getPossiblePoints = (antIndex) => {
-    let possiblePoints = [];
-    for (let i = 1; i < points.length; i++) {
-        if (!routeMatrix[antIndex].includes(i)) {
-            possiblePoints.push(i);
-        }
-    }
-    return possiblePoints;
-}
-
-const initRouteMatrix = () => {
+const initRouteMatrix = (points) => {
     routeMatrix = new Array(ANTS_AMOUNT);
     for (let i = 0; i < ANTS_AMOUNT; i++) {
         routeMatrix[i] = new Array(points.length);
     }
 }
 
-const initPheromonesMatrix = () => {
+const initPheromonesMatrix = (points) => {
     pheromonesMatrix = new Array(points.length);
     for (let i = 0; i < points.length; i++) {
         pheromonesMatrix[i] = new Array(points.length);
@@ -164,7 +175,7 @@ const initPheromonesMatrix = () => {
     }
 }
 
-const initDistanceMatrix = () => {
+const initDistanceMatrix = (points) => {
     distanceMatrix = new Array(points.length);
     for (let i = 0; i < points.length; i++) {
         distanceMatrix[i] = new Array(points.length);

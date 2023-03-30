@@ -1,16 +1,17 @@
 import React, {useEffect} from 'react';
 import {Button} from "react-bootstrap";
-import '../../style/canvas.css'
-import '../../style/grid.css'
+import {clearCanvas} from "./CanvasUtils";
 import {antAlgorithm} from "./AlgorithmImpl";
 import {Point} from "./Point";
+import '../../style/canvas.css'
+import '../../style/grid.css'
 
 export const CANVAS_HEIGHT = 500;
 export const CANVAS_WIDTH = 800;
-export const points = [];
 
 const initListeners = (canvas) => {
     let ctx = canvas.getContext('2d');
+    let points = [];
     document.getElementById('canvas').addEventListener(
         'click',
         (e) => {
@@ -21,7 +22,18 @@ const initListeners = (canvas) => {
     document.getElementById('clear-button').addEventListener(
         'click',
         () => {
-            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+            points = []
+            clearCanvas(ctx);
+        }
+    );
+    document.getElementById('start-button').addEventListener(
+        'click',
+        () => {
+            if (points.length < 2) {
+                alert("Вершин должно быть больше двух");
+            } else {
+                antAlgorithm(ctx, points).then(() => null);
+            }
         }
     );
 }
@@ -37,7 +49,7 @@ const AntAlgorithmPage = () => {
     return (
         <div>
             <div className={'d-grid gap-2 buttons-panel'}>
-                <Button onClick={antAlgorithm}>Старт</Button>
+                <Button id={'start-button'}>Старт</Button>
                 <Button id={'clear-button'}>Очистить</Button>
             </div>
             <div>
