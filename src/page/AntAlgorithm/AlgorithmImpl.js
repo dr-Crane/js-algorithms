@@ -1,12 +1,12 @@
 import {updateCanvas} from "./CanvasUtils";
 
-const ALPHA = 1;
-const BETA = 1;
+const ALPHA = 2;
+const BETA = 3;
 const EVAPORATION_RATE = 0.5;
 const Q = 100;
-const ANTS_AMOUNT = 100;
+const ANTS_AMOUNT = 200;
 const PHEROMONES_DEFAULT_VALUE = 1;
-const ITERATIONS_COUNT = 100;
+const ITERATIONS_COUNT = 500;
 
 let distanceMatrix;
 let pheromonesMatrix;
@@ -28,10 +28,11 @@ export const antAlgorithm = async (ctx, points) => {
         if (minPathLength === 0 || routeLength[minPathIndex] < minPathLength) {
             minPathLength = routeLength[minPathIndex];
             path = getPath(routeMatrix[minPathIndex]);
-            await (100);
+            updateCanvas(path, ctx, points, false);
+            await new Promise(resolve => setTimeout(resolve, 10));
         }
     }
-    updateCanvas(path, ctx, points);
+    updateCanvas(path, ctx, points, true);
 }
 
 const runAllAnts = (points) => {

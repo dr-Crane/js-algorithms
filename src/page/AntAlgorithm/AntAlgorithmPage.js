@@ -9,9 +9,8 @@ import '../../style/grid.css'
 export const CANVAS_HEIGHT = 500;
 export const CANVAS_WIDTH = 800;
 
-const initListeners = (canvas) => {
+const initListeners = (canvas, points) => {
     let ctx = canvas.getContext('2d');
-    let points = [];
     document.getElementById('canvas').addEventListener(
         'click',
         (e) => {
@@ -40,10 +39,11 @@ const initListeners = (canvas) => {
 
 const AntAlgorithmPage = () => {
     useEffect(() => {
+        let points = [];
         const canvas = document.getElementById('canvas');
         canvas.height = CANVAS_HEIGHT;
         canvas.width = CANVAS_WIDTH;
-        initListeners(canvas);
+        initListeners(canvas, points);
     });
 
     return (

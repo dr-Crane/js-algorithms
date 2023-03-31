@@ -1,9 +1,9 @@
 import {CANVAS_HEIGHT, CANVAS_WIDTH} from "./AntAlgorithmPage";
 
-export const updateCanvas = (path, ctx, points) => {
+export const updateCanvas = (path, ctx, points, end) => {
     clearCanvas(ctx);
     for (let i = 0; i < path.length; i++) {
-        ctx.strokeStyle = '#4260f5';
+        ctx.strokeStyle = end ? '#4260f5' : '#b30b0b';
         ctx.lineWidth = 5;
         ctx.beginPath();
         ctx.moveTo(points[path[i].from].x, points[path[i].from].y);
