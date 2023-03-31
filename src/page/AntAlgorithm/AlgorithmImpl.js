@@ -11,6 +11,7 @@ const ITERATIONS_COUNT = 100;
 let distanceMatrix;
 let pheromonesMatrix;
 let routeMatrix;
+let routeLength;
 
 export const antAlgorithm = async (ctx, points) => {
     let minPathLength = 0;
@@ -19,11 +20,11 @@ export const antAlgorithm = async (ctx, points) => {
     initDistanceMatrix(points);
     initPheromonesMatrix(points);
     for (let i = 0; i < ITERATIONS_COUNT; i++) {
-        let routeLength = new Array(ANTS_AMOUNT);
+        routeLength = new Array(ANTS_AMOUNT);
         initRouteMatrix(points);
-        runAllAnts(routeLength, points);
-        updatePheromones(routeLength);
-        minPathIndex = getIndexOfMinimumValue(routeLength);
+        runAllAnts(points);
+        updatePheromones();
+        minPathIndex = getIndexOfMinimumValue();
         if (minPathLength === 0 || routeLength[minPathIndex] < minPathLength) {
             minPathLength = routeLength[minPathIndex];
             path = getPath(routeMatrix[minPathIndex]);
@@ -33,7 +34,7 @@ export const antAlgorithm = async (ctx, points) => {
     updateCanvas(path, ctx, points);
 }
 
-const runAllAnts = (routeLength, points) => {
+const runAllAnts = (points) => {
     for (let j = 0; j < ANTS_AMOUNT; j++) {
         let currentPoint = 0
         for (let k = 0; k < points.length; k++) {
@@ -63,7 +64,7 @@ const getPath = (route) => {
     return path;
 }
 
-const getIndexOfMinimumValue = (routeLength) => {
+const getIndexOfMinimumValue = () => {
     let minIndex = 0;
     for (let i = 0; i < routeLength.length; i++) {
         if (routeLength[minIndex] > routeLength[i]) {
@@ -73,7 +74,7 @@ const getIndexOfMinimumValue = (routeLength) => {
     return minIndex;
 }
 
-const updatePheromones = (routeLength) => {
+const updatePheromones = () => {
     for (let i = 0; i < pheromonesMatrix.length; i++) {
         for (let j = 0; j < pheromonesMatrix[i].length; j++) {
             if (i !== j) {
@@ -81,10 +82,10 @@ const updatePheromones = (routeLength) => {
             }
         }
     }
-    sprayNewPheromones(routeLength)
+    sprayNewPheromones()
 }
 
-const sprayNewPheromones = (routeLength) => {
+const sprayNewPheromones = () => {
     let delta = new Array(ANTS_AMOUNT);
     for (let i = 0; i < ANTS_AMOUNT; i++) {
         delta[i] = Q / routeLength[i];
