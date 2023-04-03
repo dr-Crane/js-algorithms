@@ -9,11 +9,10 @@ var START_BUTTON = document.getElementById("startButton");
 var CLEAR_BUTTON = document.getElementById("clearButton");
 var INPUT_BUTTON = document.getElementById("inputButton");
 
-var width = 30;
+var CELL_SIZE;
 var field;
 
-const CELL_SIZE = canvas.width / width;
-
+//храним начальную стенки, начальную и конечную точки
 var WALLS = [];
 var BEGGIN = [];
 var TARGET = [];
@@ -110,13 +109,24 @@ function createField(width) { //создаем матрицу в которой 
     return field;
 }
 
-function addStart(cell) {
-    cell.isStart = true;
-    return cell;
-}
-function addTarget(cell) {
-    cell.isTarget = true;
-    return cell;
+function drawMap(field) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < field.length; i++) {
+        for (let j = 0; j < field[i].length; j++) {
+            let cell = field[i][j];
+            drawCell(cell);
+        }
+    }
+    //два цикла ниже рисуют границы вокруг карты
+    for(let i=0; i<field.length;i++){
+        addWall(field[0][i]);
+        addWall(field[field.length-1][i]);
+        
+    }
+    for(let i=1; i<field.length-1;i++){
+        addWall(field[i][0]);
+        addWall(field[i][field.length-1]);
+    }
 }
 
 function addBeggin(cell){
@@ -125,40 +135,39 @@ function addBeggin(cell){
         drawCell(cell);
         BEGGIN.push(cell);
     }
-    if(BEGGIN.length >= 2){
+    if(BEGGIN.length >= 2){//для перемещения начальной тосчки в другое место, старая исчезает
         BEGGIN[0].isStart = false;
         drawCell(BEGGIN[0]);
         BEGGIN.splice(0,1);
     }
 }
+
 function addTarget(cell){
     if(!cell.isTarget){
         cell.isTarget = true;
         drawCell(cell);
         TARGET.push(cell);
     }
-    if(TARGET.length >= 2){
+    if(TARGET.length >= 2){//для перемещения конечной точки в другое место, старая исчезает
         TARGET[0].isTarget = false;
         drawCell(TARGET[0]);
         TARGET.splice(0,1);
     }
-    
 }
-function addWall(cell) {
 
-    if (!(cell.isStart || cell.isTarget)) {
+function addWall(cell) {
+    if (!(cell.isStart || cell.isTarget)) {//проверка на то является ли выбранная клетка начальной либо конечной
         if (!cell.isWall) {
             cell.isWall = true;
             drawCell(cell);
             WALLS.unshift(cell);
-        } else {
+        } else {//если тыкнули на клетку-стенку, то удаляем её
             cell.isWall = false;
             const index = WALLS.shift();
             drawCell(cell);
             WALLS.splice(index, 1)
         }
     }
-    return WALLS;
 }
 
 function pathIsExist(path) {
@@ -168,58 +177,44 @@ function pathIsExist(path) {
 function drawCell(cell) {
     let color;
     if (cell.isStart) {
-        color = '#9ACD32';
+        color = '#B0FF4D';
     } else if (cell.isTarget) {
-        color = '#6495ED';
+        color = '#FF4838';
     }
     else if (cell.isPath) {
-        color = '#FFE4B5';
+        color = '#696969';
     }
     else if (cell.isWall) {
-        color = '#A9A9A9';
+        color = '#FFFFFF';
     }
     else {
-        color = '#FFFFFF';
+        color = '#212121';
     }
     ctx.fillStyle = color;
     ctx.fillRect(cell.y * CELL_SIZE, cell.x * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-    // ctx.strokeStyle = '#696969';
-    // ctx.strokeRect(cell.y * CELL_SIZE, cell.x * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    
+    ctx.strokeStyle = '#696969';
+    ctx.strokeRect(cell.y * CELL_SIZE, cell.x * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 }
 
 function drawPath(path) {
     for (let i = 1; i < path.length - 1;) {
         const currentCell = path[i];
         currentCell.isPath = true;
-        setTimeout(() => { drawCell(currentCell) }, 75 * i++);
+        setTimeout(() => { drawCell(currentCell) }, 50 * i++);
     }
-}
-
-function drawMap(field) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let i = 0; i < field.length; i++) {
-        for (let j = 0; j < field[i].length; j++) {
-            let cell = field[i][j];
-            drawCell(cell);
-        }
-    }
-}
-
-function getRandomCell(field) {
-    let row = Math.floor(Math.random() * field.length);
-    let col = Math.floor(Math.random() * field[0].length);
-    return (!field[row][col].isWall) ? field[row][col] : getRandomCell(field);
 }
 
 //<---------------------------MAIN------------------------------->
 
 CREATE_BUTTON.addEventListener('click',()=>{
+    let width = document.getElementById("user_input").value;
+    CELL_SIZE = canvas.width / width;
     field = createField(width);
     drawMap(field);
 })
 
 BEGIN_BUTTON.addEventListener('click',()=>{
-
     canvas.onclick = function (event) {
         let x = event.offsetX;
         let y = event.offsetY;
@@ -227,10 +222,9 @@ BEGIN_BUTTON.addEventListener('click',()=>{
         y = Math.floor(y / CELL_SIZE);
        addBeggin(field[y][x]);
     }
-
 });
-TARGET_BUTTON.addEventListener('click',()=>{
 
+TARGET_BUTTON.addEventListener('click',()=>{
     canvas.onclick = function (event) {
         let x = event.offsetX;
         let y = event.offsetY;
@@ -239,6 +233,7 @@ TARGET_BUTTON.addEventListener('click',()=>{
         addTarget(field[y][x]);
     }
 })
+
 WALL_BUTTON.addEventListener('click',()=>{
     canvas.onclick = function (event) {
         let x = event.offsetX;
@@ -248,10 +243,12 @@ WALL_BUTTON.addEventListener('click',()=>{
         addWall(field[y][x]);
     }
 });
+
 START_BUTTON.addEventListener('click', () => {
     let path = AStarAlgorithm(BEGGIN[0], TARGET[0], field);
     return pathIsExist(path) ? drawPath(path) : alert("path doesn't exist:(")
 });
+
 CLEAR_BUTTON.addEventListener('click', () => {
     window.location.reload();
 });
