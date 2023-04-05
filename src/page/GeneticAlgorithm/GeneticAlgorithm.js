@@ -1,8 +1,8 @@
 import React, {useEffect} from 'react';
 import '../../style/canvas.css'
 import '../../style/grid.css'
-import {antAlgorithm} from "./AlgorithmImpl";
 import {CANVAS_HEIGHT, CANVAS_WIDTH, clearCanvas} from "../Utils/TravelerSalesmenProblem";
+import {geneticAlgorithm} from "./AlgorithmImpl";
 import {Button} from "react-bootstrap";
 import {Point} from "../Utils/Point";
 
@@ -29,13 +29,13 @@ const initListeners = (canvas, points) => {
             if (points.length < 2) {
                 alert("Вершин должно быть больше двух");
             } else {
-                antAlgorithm(ctx, points).then(() => null);
+                geneticAlgorithm(ctx, points).then(() => null);
             }
         }
     );
 }
 
-const AntAlgorithmPage = () => {
+const GeneticAlgorithm = () => {
     useEffect(() => {
         let points = [];
         const canvas = document.getElementById('canvas');
@@ -57,4 +57,4 @@ const AntAlgorithmPage = () => {
     );
 };
 
-export default AntAlgorithmPage;
+export default GeneticAlgorithm;

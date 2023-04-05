@@ -1,4 +1,4 @@
-import {CANVAS_HEIGHT, CANVAS_WIDTH} from "./AntAlgorithmPage";
+import {clearCanvas} from "./TravelerSalesmenProblem";
 
 export const updateCanvas = (path, ctx, points, end) => {
     clearCanvas(ctx);
@@ -16,6 +16,3 @@ export const updateCanvas = (path, ctx, points, end) => {
     }
 }
 
-export const clearCanvas = (ctx) => {
-    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-}

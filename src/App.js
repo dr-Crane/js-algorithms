@@ -5,7 +5,7 @@ import AntAlgorithmPage from "./page/AntAlgorithm/AntAlgorithmPage";
 import AStarAlgorithm from "./page/AStarAlgorithm";
 import ClusterAnalysisAlgorithm from "./page/ClusterAnalysisAlgorithm";
 import DecisionTreeAlgorithm from "./page/DecisionTreeAlgorithm";
-import GeneticAlgorithm from "./page/GeneticAlgorithm";
+import GeneticAlgorithm from "./page/GeneticAlgorithm/GeneticAlgorithm";
 import NeuralNetwork from "./page/NeuralNetwork";
 import NotFoundPage from "./page/NotFoundPage";
 

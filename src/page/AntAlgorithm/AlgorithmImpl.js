@@ -1,4 +1,5 @@
-import {updateCanvas} from "./CanvasUtils";
+import {updateCanvas} from "../Utils/CanvasUtils";
+import {initDistanceMatrix, initRouteMatrix} from "../Utils/TravelerSalesmenProblem";
 
 const ALPHA = 2;
 const BETA = 3;
@@ -17,11 +18,11 @@ export const antAlgorithm = async (ctx, points) => {
     let minPathLength = 0;
     let minPathIndex = 0;
     let path = null;
-    initDistanceMatrix(points);
+    distanceMatrix = initDistanceMatrix(points);
     initPheromonesMatrix(points);
     for (let i = 0; i < ITERATIONS_COUNT; i++) {
         routeLength = new Array(ANTS_AMOUNT);
-        initRouteMatrix(points);
+        routeMatrix = initRouteMatrix(points, ANTS_AMOUNT);
         runAllAnts(points);
         updatePheromones();
         minPathIndex = getIndexOfMinimumValue();
@@ -29,7 +30,7 @@ export const antAlgorithm = async (ctx, points) => {
             minPathLength = routeLength[minPathIndex];
             path = getPath(routeMatrix[minPathIndex]);
             updateCanvas(path, ctx, points, false);
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await new Promise(resolve => setTimeout(resolve, 100));
         }
     }
     updateCanvas(path, ctx, points, true);
@@ -46,25 +47,6 @@ const runAllAnts = (points) => {
     }
 }
 
-const getPath = (route) => {
-    let path = [];
-    let currentPoint = 0;
-    let nextPoint = 0;
-    for (let i = 1; i < route.length; i++) {
-        nextPoint = route[i];
-        path.push({
-            from: currentPoint,
-            to: nextPoint
-        });
-        currentPoint = nextPoint;
-    }
-    path.push({
-        from: currentPoint,
-        to: 0
-    });
-    return path;
-}
-
 const getIndexOfMinimumValue = () => {
     let minIndex = 0;
     for (let i = 0; i < routeLength.length; i++) {
@@ -73,6 +55,19 @@ const getIndexOfMinimumValue = () => {
         }
     }
     return minIndex;
+}
+
+const getRouteLength = (index) => {
+    let length = 0;
+    let currentPoint = 0;
+    let nextPoint = 0;
+    for (let i = 1; i < routeMatrix[index].length; i++) {
+        nextPoint = routeMatrix[index][i];
+        length = length + distanceMatrix[currentPoint][nextPoint];
+        currentPoint = nextPoint;
+    }
+    length = length + distanceMatrix[currentPoint][0];
+    return length;
 }
 
 const updatePheromones = () => {
@@ -101,19 +96,6 @@ const sprayNewPheromones = () => {
         }
         pheromonesMatrix[currentPoint][0] = pheromonesMatrix[currentPoint][0] + delta[i];
     }
-}
-
-const getRouteLength = (antIndex) => {
-    let length = 0;
-    let currentPoint = 0;
-    let nextPoint = 0;
-    for (let i = 1; i < routeMatrix[antIndex].length; i++) {
-        nextPoint = routeMatrix[antIndex][i];
-        length = length + distanceMatrix[currentPoint][nextPoint];
-        currentPoint = nextPoint;
-    }
-    length = length + distanceMatrix[currentPoint][0];
-    return length;
 }
 
 const getPossiblePoints = (points, antIndex) => {
@@ -160,11 +142,23 @@ const getNextPoint = (antIndex, currentPoint, points) => {
     return possiblePoints[possiblePoints.length - 1];
 }
 
-const initRouteMatrix = (points) => {
-    routeMatrix = new Array(ANTS_AMOUNT);
-    for (let i = 0; i < ANTS_AMOUNT; i++) {
-        routeMatrix[i] = new Array(points.length);
+const getPath = (route) => {
+    let path = [];
+    let currentPoint = 0;
+    let nextPoint = 0;
+    for (let i = 1; i < route.length; i++) {
+        nextPoint = route[i];
+        path.push({
+            from: currentPoint,
+            to: nextPoint
+        });
+        currentPoint = nextPoint;
     }
+    path.push({
+        from: currentPoint,
+        to: 0
+    });
+    return path;
 }
 
 const initPheromonesMatrix = (points) => {
@@ -175,18 +169,4 @@ const initPheromonesMatrix = (points) => {
             pheromonesMatrix[i][j] = (i !== j ? PHEROMONES_DEFAULT_VALUE : 0);
         }
     }
-}
-
-const initDistanceMatrix = (points) => {
-    distanceMatrix = new Array(points.length);
-    for (let i = 0; i < points.length; i++) {
-        distanceMatrix[i] = new Array(points.length);
-        for (let j = 0; j < points.length; j++) {
-            distanceMatrix[i][j] = (i !== j ? getDistance(points[i], points[j]) : 0);
-        }
-    }
-}
-
-const getDistance = (a, b) => {
-    return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 }
