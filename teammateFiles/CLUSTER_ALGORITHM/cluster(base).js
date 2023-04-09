@@ -7,55 +7,28 @@ var ADD_BUTTON = document.getElementById("addBttn");
 var START_BUTTON = document.getElementById("startBttn");
 var CLEAR_BUTTON = document.getElementById("clearBttn");
 
-
-var COLORS = ['#FC3030', '#FCAA05', '#FFF700', '#7CD424', '#70DEFF', '#3074FC', '#6823C2'];
+var COLORS = ['#FC3030', '#FCAA05', '#FFF700', '#7CD424', '#70DEFF', '#3074FC', '#6823C2', 'FF00F7', '7674DB', 'DB7474', 'B0B0B0', '000'];
 var POINTS = [];
 var CENTROIDS = [];
 var DISTANCES = [];
-var EXTREMES = [];
 var K;
 
 function mainFunction() {
 
-    EXTREMES = getDataExtremes();
     CENTROIDS = initCentroids(K);
 
     calcDistances();
-    drawCentroids();
+    drawClusters();
     moveCentroids();
 }
 
-function getDataExtremes() {//перебирает все точки и каждое измерение в каждой точке и находит минимальное и максимальное значения (выбирает мин х и макс у)
-    let extremes = [];
-
-    for (let i = 0; i < POINTS.length; i++) {
-        let point = POINTS[i];
-
-        for (let j = 0; j < point.length; j++) {
-            if (!extremes[j]) {
-                extremes[j] = { min: 10000, max: -10000 };
-            }
-
-            if (point[j] < extremes[j].min) {
-                extremes[j].min = point[j];
-            }
-
-            if (point[j] > extremes[j].max) {
-                extremes[j].max = point[j];
-            }
-        }
-    }
-
-    return extremes;
-}
-
-function initCentroids(k) {//инициализирует k случайных центроидов кластера
+function initCentroids(k) {
 
     for (let i = 0; i < k; i++) {
         let centroid = [];
 
-        for (let j = 0; j < EXTREMES.length; j++) {
-            centroid[j] = Math.random() * (EXTREMES[j].max - EXTREMES[j].min) + EXTREMES[j].min;
+        for (let j = 0; j < 2; j++) {
+            centroid[j] = canvas.width / 5 + Math.random() * canvas.width / 1.5;
         }
         CENTROIDS.push(centroid);
     }
@@ -73,7 +46,7 @@ function calcDistances() {//высчитывает расстояние от ц�
             let centroid = CENTROIDS[j];
             let sum = 0;
 
-            for (let p = 0; p < point.length; p++) {
+            for (let p = 0; p < point.length; p++) {//вычисляем координаты вектора х и у
                 let length = point[p] - centroid[p];
                 length *= length;
                 sum += length;
@@ -82,7 +55,7 @@ function calcDistances() {//высчитывает расстояние от ц�
             distances[j] = Math.sqrt(sum);
         }
 
-        DISTANCES[i] = distances.indexOf(Math.min.apply(null, distances));
+        DISTANCES[i] = distances.indexOf(Math.min.apply(null, distances));//для каждой точки записываем раст. до центроида
     }
 }
 
@@ -90,15 +63,15 @@ function calculateCentroids() {//вычисляютя новые значени�
 
     calcDistances();
 
-    let newCentroids = Array(CENTROIDS.length);
-    let counts = Array(CENTROIDS.length);
+    let newCentroids = Array(CENTROIDS.length);//храним новые коорд центроид
+    let counts = Array(CENTROIDS.length);//для усреднения позиции каждой центроиды
     let moved = false;
 
-    for (let j = 0; j < CENTROIDS.length; j++) {
-        counts[j] = 0;
-        newCentroids[j] = Array(CENTROIDS[j].length);
-        for (let dimension in CENTROIDS[j]) {
-            newCentroids[j][dimension] = 0;
+    for (let i = 0; i < CENTROIDS.length; i++) {
+        counts[i] = 0;
+        newCentroids[i] = Array(CENTROIDS[i].length);
+        for (let j in CENTROIDS[i]) {
+            newCentroids[i][j] = 0;
         }
     }
 
@@ -109,8 +82,8 @@ function calculateCentroids() {//вычисляютя новые значени�
 
         counts[centroid_index]++;
 
-        for (let dimension in centroid) {
-            newCentroids[centroid_index][dimension] += point[dimension];
+        for (let index in centroid) {
+            newCentroids[centroid_index][index] += point[index];
         }
     }
 
@@ -118,22 +91,22 @@ function calculateCentroids() {//вычисляютя новые значени�
         if (counts[centroid_index] == 0) {
             newCentroids[centroid_index] = CENTROIDS[centroid_index];
 
-            for (let dimension in EXTREMES) {
-                newCentroids[centroid_index][dimension] = Math.random() * (EXTREMES[dimension].max - EXTREMES[dimension].min) + EXTREMES[dimension].min;
+            for (let j = 0; j < 2; j++) {
+                newCentroids[centroid_index][j] = Math.random() * canvas.width / 1.5;
             }
             continue;
         }
 
-        for (let dimension in newCentroids[centroid_index]) {
-            newCentroids[centroid_index][dimension] /= counts[centroid_index];
+        for (let index in newCentroids[centroid_index]) {
+            newCentroids[centroid_index][index] /= counts[centroid_index];//усредняем х и у
         }
     }
 
-    if (CENTROIDS.toString() != newCentroids.toString()) {// преобраз. массивы центроид и пересчитаннных центроид в строки. Если они одинаковы, значит центроиды не сдвинулись и мы разбили данные на кластеры
+    if (CENTROIDS.toString() != newCentroids.toString()) {
         moved = true;
     }
 
-    CENTROIDS = newCentroids;//записываем новые центроиды
+    CENTROIDS = newCentroids;
 
     return moved;
 }
@@ -145,10 +118,11 @@ function drawPoints() {
         ctx.save();
 
         let [x, y] = POINTS[i];
-        ctx.fillStyle = "#FAFAFA";
+        ctx.fillStyle = '#FFFFFF';
+
         ctx.translate(x, y);
         ctx.beginPath();
-        ctx.arc(0, 0, 7, 0, Math.PI * 3);
+        ctx.arc(0, 0, 8, 0, Math.PI * 2);
         ctx.fill();
         ctx.closePath();
 
@@ -158,31 +132,40 @@ function drawPoints() {
 
 }
 
-function drawCentroids() {
+function drawClusters() {
     ctx.clearRect(0, 0, width, height);
     drawPoints();
-
-    for (let j = 0; j < DISTANCES.length; j++) {
-
-        let centroid_index = DISTANCES[j];
-        ctx.globalAlpha = 0.1;
-        ctx.save();
-
-        ctx.strokeStyle = '#FFFFFF';
-        ctx.beginPath();
-        let [x1, y1] = POINTS[j];
-        let [x2, y2] = CENTROIDS[centroid_index];
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-        ctx.closePath();
-
-        ctx.restore();
-    }
-
-
     for (let i = 0; i < CENTROIDS.length; i++) {
-        ctx.globalAlpha = 1;
+
+        for (let j = 0; j < DISTANCES.length; j++) {
+
+            let centroid_index = DISTANCES[j];
+            ctx.globalAlpha = 0.15;
+            ctx.save();
+
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.fillStyle = COLORS[centroid_index];
+
+            ctx.beginPath();
+            let [x1, y1] = POINTS[j];
+            let [x2, y2] = CENTROIDS[centroid_index];
+
+            ctx.fill();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.closePath();
+
+            ctx.globalAlpha = 0.75;
+            ctx.translate(x1, y1);
+            ctx.arc(0, 0, 5, 0, Math.PI * 2, true);
+            ctx.fill();
+
+            ctx.restore();
+
+        }
+
+        ctx.globalAlpha = 0.5;
         ctx.save();
 
         let [x1, y1] = CENTROIDS[i];
@@ -191,22 +174,22 @@ function drawCentroids() {
         ctx.translate(x1, y1);
 
         ctx.beginPath();
-        ctx.arc(0, 0, 5, 0, Math.PI * 2, true);
+        ctx.arc(0, 0, 4, 0, Math.PI * 2, true);
         ctx.fill();
         ctx.closePath();
 
         ctx.restore();
 
     }
-    
+
 }
 
 function moveCentroids() { //смещает центроиды пока они сдвигаются
-    drawCentroids();
+    drawClusters();
 
     if (calculateCentroids()) {
         setTimeout(moveCentroids, 1000);
-    } 
+    }
 }
 
 //<---------------------MAIN------------------------>
