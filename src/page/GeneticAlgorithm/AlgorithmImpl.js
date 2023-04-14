@@ -2,6 +2,7 @@ import {initDistanceMatrix} from "../Utils/TravelerSalesmenProblem";
 import {Chromosome} from "./Chromosome";
 import {updateCanvas} from "../Utils/CanvasUtils";
 
+const MUTATION_CONST = 70;
 let populationNum;
 let distanceMatrix;
 let population;
@@ -11,11 +12,7 @@ export const geneticAlgorithm = async (ctx, points) => {
     populationNum = Math.pow(points.length, 2);
     population = [];
     createPopulation(points.length);
-
-    for (let i = 0, j = 0; i < 5000 && j < 300; i++, j++) {
-        if (j === 300) {
-            break;
-        }
+    for (let i = 0, j = 0; i < 1000 && j < 200; i++, j++) {
         let bestFit = population[0].fitness;
         nextGeneration(points.length);
         let newBestFit = population[0].fitness;
@@ -54,8 +51,10 @@ const nextGeneration = (pointsLength) => {
         let breakPoint = getRandomIndex(pointsLength);
         let firstChild = generateChild(firstParent, secondParent, breakPoint, pointsLength);
         let secondChild = generateChild(secondParent, firstParent, breakPoint, pointsLength);
-        firstChild = mutation(firstChild.slice());
-        secondChild = mutation(secondChild.slice());
+        if (Math.floor(Math.random() * 100) < MUTATION_CONST) {
+            firstChild = mutation(firstChild.slice());
+            secondChild = mutation(secondChild.slice());
+        }
         population.push(new Chromosome(firstChild.slice(), getRouteLength(firstChild.slice())));
         population.push(new Chromosome(secondChild.slice(), getRouteLength(secondChild.slice())));
     }
