@@ -17,23 +17,29 @@ body {
   padding: 0;
   height: 600px;
   width: 600px;
-  background-color: rgb(180, 180, 180);
+  background-color: gray;
 }
 .panel{
   top:0;
   width: 100px;
   height: 600px;
+  
   display:flex;
   flex-direction: column;
   align-items: center;
   margin: 0 30px;
   
 }
-
+.mapChanger{
+  margin-bottom: 20px;
+}
+.navigation{
+  margin-bottom: 20px;
+}
 button {
   color:white;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   height: 35px;
   width: 120px;
  
@@ -43,6 +49,22 @@ button {
   margin-bottom: 10px;
   background-color:gray;
   transition: 0.2s linear;
+}
+button[id=beginButton]:hover{
+  color:white;
+  background-color:#B0FF4D;
+}
+button[id=targetButton]:hover{
+  color:white;
+  background-color:#FF4838;
+}
+button[id=wallButton]:hover{
+  color:white;
+  background-color: #363636;
+}
+button[id=pathButton]:hover{
+  color:white;
+  background-color: #87CEFA;
 }
 button:hover{
   background-color: white;

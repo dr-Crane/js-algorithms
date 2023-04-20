@@ -7,19 +7,44 @@ var ADD_BUTTON = document.getElementById("addBttn");
 var START_BUTTON = document.getElementById("startBttn");
 var CLEAR_BUTTON = document.getElementById("clearBttn");
 
-var COLORS = ['#FC3030', '#FCAA05', '#FFF700', '#7CD424', '#70DEFF', '#3074FC', '#6823C2', 'FF00F7', '7674DB', 'DB7474', 'B0B0B0', '000'];
+var COLORS = ['#FC3030', '#FCAA05', '#FFF700', '#7CD424', '#70DEFF', '#3074FC', '#6823C2', '#FF00F7', '#7674DB', '#DB7474', '#B0B0B0', '#000000'];
+var EXTREMES = [];
 var POINTS = [];
 var CENTROIDS = [];
 var DISTANCES = [];
 var K;
 
 function mainFunction() {
-
+    EXTREMES = getDataExtremes();
     CENTROIDS = initCentroids(K);
 
     calcDistances();
     drawClusters();
     moveCentroids();
+}
+
+function getDataExtremes() {//перебирает все точки и каждое измерение в каждой точке и находит минимальное и максимальное значения (выбирает мин х и макс у)
+    let extremes = [];
+
+    for (let i = 0; i < POINTS.length; i++) {
+        let point = POINTS[i];
+
+        for (let j = 0; j < point.length; j++) {
+            if (!extremes[j]) {
+                extremes[j] = { min: 10000, max: -10000 };
+            }
+
+            if (point[j] < extremes[j].min) {
+                extremes[j].min = point[j];
+            }
+
+            if (point[j] > extremes[j].max) {
+                extremes[j].max = point[j];
+            }
+        }
+    }
+
+    return extremes;
 }
 
 function initCentroids(k) {
@@ -28,7 +53,7 @@ function initCentroids(k) {
         let centroid = [];
 
         for (let j = 0; j < 2; j++) {
-            centroid[j] = canvas.width / 5 + Math.random() * canvas.width / 1.5;
+            centroid[j] = Math.random() * (EXTREMES[j].max - EXTREMES[j].min) + EXTREMES[j].min;
         }
         CENTROIDS.push(centroid);
     }
@@ -75,30 +100,30 @@ function calculateCentroids() {//вычисляютя новые значени�
         }
     }
 
-    for (let point_index in DISTANCES) {
-        let centroid_index = DISTANCES[point_index];
-        let point = POINTS[point_index];
+    for (let i = 0; i < DISTANCES.length; i++) {
+        let centroid_index = DISTANCES[i];
+        let point = POINTS[i];
         let centroid = CENTROIDS[centroid_index];
 
         counts[centroid_index]++;
 
-        for (let index in centroid) {
-            newCentroids[centroid_index][index] += point[index];
+        for (let j = 0; j < centroid.length; j++) {
+            newCentroids[centroid_index][j] += point[j];
         }
     }
 
-    for (let centroid_index in newCentroids) {
+    for (let centroid_index = 0; centroid_index < newCentroids.length; centroid_index++) {
         if (counts[centroid_index] == 0) {
             newCentroids[centroid_index] = CENTROIDS[centroid_index];
 
             for (let j = 0; j < 2; j++) {
-                newCentroids[centroid_index][j] = Math.random() * canvas.width / 1.5;
+                newCentroids[centroid_index][j] = Math.random() * (EXTREMES[j].max - EXTREMES[j].min) + EXTREMES[j].min;
             }
             continue;
         }
 
-        for (let index in newCentroids[centroid_index]) {
-            newCentroids[centroid_index][index] /= counts[centroid_index];//усредняем х и у
+        for (let j = 0; j < newCentroids[centroid_index].length; j++) {
+            newCentroids[centroid_index][j] /= counts[centroid_index];//усредняем х и у
         }
     }
 
@@ -205,7 +230,7 @@ ADD_BUTTON.addEventListener('click', () => {
 
 START_BUTTON.addEventListener('click', () => {
     K = document.getElementById("user_input").value
-    mainFunction();
+    return (POINTS.length!==0)?mainFunction():alert("Add data, please!");
 })
 
 CLEAR_BUTTON.addEventListener('click', () => {
