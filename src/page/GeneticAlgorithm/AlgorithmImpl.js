@@ -12,13 +12,8 @@ export const geneticAlgorithm = async (ctx, points) => {
     populationNum = Math.pow(points.length, 2);
     population = [];
     createPopulation(points.length);
-    for (let i = 0, j = 0; i < 1000 && j < 200; i++, j++) {
-        let bestFit = population[0].fitness;
+    for (let i = 0; i < 1000; i++) {
         nextGeneration(points.length);
-        let newBestFit = population[0].fitness;
-        if (bestFit === newBestFit) {
-            j = 0;
-        }
         updateCanvas(getPath(population[0].route), ctx, points, false);
         await new Promise(resolve => setTimeout(resolve, 1));
     }
