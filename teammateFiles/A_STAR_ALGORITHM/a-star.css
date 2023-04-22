@@ -1,5 +1,5 @@
 body {
-  background-color: dimgray;
+  background-color: #343a40;
   display:flex;
   align-items: center;
   justify-content: center;
@@ -47,7 +47,7 @@ button {
   
   margin: 0;
   margin-bottom: 10px;
-  background-color:gray;
+  background-color:#0d6efd;
   transition: 0.2s linear;
 }
 button[id=beginButton]:hover{
