@@ -37,13 +37,13 @@ export const antAlgorithm = async (ctx, points) => {
 }
 
 const runAllAnts = (points) => {
-    for (let j = 0; j < ANTS_AMOUNT; j++) {
+    for (let i = 0; i < ANTS_AMOUNT; i++) {
         let currentPoint = 0
-        for (let k = 0; k < points.length; k++) {
-            routeMatrix[j][k] = currentPoint;
-            currentPoint = getNextPoint(j, currentPoint, points);
+        for (let j = 0; j < points.length; j++) {
+            routeMatrix[i][j] = currentPoint;
+            currentPoint = getNextPoint(i, currentPoint, points);
         }
-        routeLength[j] = getRouteLength(j);
+        routeLength[i] = getRouteLength(i);
     }
 }
 

@@ -52,10 +52,10 @@ const nextGeneration = (pointsLength) => {
         }
         population.push(new Chromosome(firstChild.slice(), getRouteLength(firstChild.slice())));
         population.push(new Chromosome(secondChild.slice(), getRouteLength(secondChild.slice())));
+        population.sort((a, b) => a.fitness - b.fitness);
+        population.splice(-1);
+        population.splice(-1);
     }
-    population.sort((a, b) => a.fitness - b.fitness);
-    population.splice(-1);
-    population.splice(-1);
 }
 
 const mutation = (child) => {
