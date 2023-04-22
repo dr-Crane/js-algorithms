@@ -1,18 +1,18 @@
-var canvas = document.getElementById('canvas');
-var ctx = canvas.getContext('2d');
-var height = canvas.height;
-var width = canvas.width;
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const height = canvas.height;
+const width = canvas.width;
 
-var ADD_BUTTON = document.getElementById("addBttn");
-var START_BUTTON = document.getElementById("startBttn");
-var CLEAR_BUTTON = document.getElementById("clearBttn");
+const ADD_BUTTON = document.getElementById("addBttn");
+const START_BUTTON = document.getElementById("startBttn");
+const CLEAR_BUTTON = document.getElementById("clearBttn");
 
-var COLORS = ['#FC3030', '#FCAA05', '#FFF700', '#7CD424', '#70DEFF', '#3074FC', '#6823C2', '#FF00F7', '#7674DB', '#DB7474', '#B0B0B0', '#000000'];
-var EXTREMES = [];
-var POINTS = [];
-var CENTROIDS = [];
-var DISTANCES = [];
-var K;
+const COLORS = ['#FC3030', '#FCAA05', '#FFF700', '#7CD424', '#70DEFF', '#3074FC', '#6823C2', '#FF00F7', '#7674DB', '#DB7474', '#B0B0B0', '#000000'];
+let EXTREMES = [];
+const POINTS = [];
+let CENTROIDS = [];
+const DISTANCES = [];
+let K;
 
 function mainFunction() {
     EXTREMES = getDataExtremes();
@@ -59,7 +59,7 @@ function initCentroids(k) {
     }
 
     return CENTROIDS;
-};
+}
 
 function calcDistances() {//высчитывает расстояние от центроиды до точки
 
@@ -113,7 +113,7 @@ function calculateCentroids() {//вычисляютя новые значени�
     }
 
     for (let centroid_index = 0; centroid_index < newCentroids.length; centroid_index++) {
-        if (counts[centroid_index] == 0) {
+        if (counts[centroid_index] === 0) {
             newCentroids[centroid_index] = CENTROIDS[centroid_index];
 
             for (let j = 0; j < 2; j++) {
@@ -127,7 +127,7 @@ function calculateCentroids() {//вычисляютя новые значени�
         }
     }
 
-    if (CENTROIDS.toString() != newCentroids.toString()) {
+    if (CENTROIDS.toString() !== newCentroids.toString()) {
         moved = true;
     }
 
@@ -194,8 +194,7 @@ function drawClusters() {
         ctx.save();
 
         let [x1, y1] = CENTROIDS[i];
-        let color = COLORS[i];
-        ctx.fillStyle = color;
+        ctx.fillStyle = COLORS[i];
         ctx.translate(x1, y1);
 
         ctx.beginPath();
